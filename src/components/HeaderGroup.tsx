@@ -10,7 +10,7 @@ const HeaderGroup = ({ headerGroup }: HeaderGroupProps) => {
         return (
           <div
             key={header.id}
-            className="text-[14px] border px-4 py-2 text-center font-bold relative cursor-pointer select-none"
+            className="text-[14px] border px-4 py-2 text-center font-bold relative cursor-pointer select-none overflow-hidden text-ellipsis whitespace-nowrap"
             onClick={header.column.getToggleSortingHandler()}
             style={{
               width: header.getSize(),

@@ -2,6 +2,8 @@ import { flexRender } from "@tanstack/react-table";
 import { RowGroupProps } from "../utils/types";
 
 const RowGroup = ({ row, virtualRow }: RowGroupProps) => {
+  // console.log(row);
+
   return (
     <div
       key={row.id}

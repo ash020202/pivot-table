@@ -1,3 +1,4 @@
+import { ColumnDef } from "@tanstack/react-table";
 import { DataRow, PivotFunctionProps } from "./types";
 
 export function generatePivotData({
@@ -93,16 +94,98 @@ export function generatePivotData({
 
     result.push(rowObj);
   }
-  // console.log("result", result);
+  // console.log("resultmap", resultMap);
 
   return result;
 }
 
+// export function formatCellValue(value: any): string | number {
+//   if (value instanceof Date) {
+//     return value.toLocaleDateString("en-GB");
+//   } else if (typeof value === "number") {
+//     return Number.isInteger(value) ? value : value.toFixed(2);
+//   }
+//   return value;
+// }
 export function formatCellValue(value: any): string | number {
   if (value instanceof Date) {
     return value.toLocaleDateString("en-GB");
   } else if (typeof value === "number") {
     return Number.isInteger(value) ? value : value.toFixed(2);
+  } else if (typeof value === "object" && value !== null) {
+    // Convert object to a readable string
+    return Object.entries(value)
+      .map(([key, val]) => `${key}: ${val}`)
+      .join(", ");
   }
-  return value;
+
+  return value ?? ""; // Handle null/undefined as empty string
 }
+
+export function buildGroupedColumns(data: DataRow[]): ColumnDef<DataRow>[] {
+  if (!data.length) return [];
+
+  const columnMap: Record<string, ColumnDef<DataRow>[]> = {};
+  const simpleColumns: ColumnDef<DataRow>[] = [];
+
+  Object.keys(data[0]).forEach((key) => {
+    if (key.includes(" | ")) {
+      const [parent, child] = key.split(" | ");
+      if (!columnMap[parent]) columnMap[parent] = [];
+      columnMap[parent].push({
+        accessorKey: key,
+        id: key,
+        header: child,
+        cell: (info) => formatCellValue(info.getValue()),
+      });
+    } else {
+      simpleColumns.push({
+        accessorKey: key,
+        id: key,
+        header: key,
+        cell: (info) => formatCellValue(info.getValue()),
+      });
+    }
+  });
+
+  // Combine simple columns + grouped columns
+  return [
+    ...simpleColumns,
+    ...Object.entries(columnMap).map(([parent, children]) => ({
+      header: parent,
+      columns: children,
+    })),
+  ];
+}
+
+// export function buildGroupedRows(
+//   data: DataRow[],
+//   rowFields: string[],
+//   level = 0
+// ): any[] {
+//   if (level >= rowFields.length) return data;
+
+//   const grouped: Record<string, DataRow[]> = {};
+//   const currentField = rowFields[level];
+
+//   data.forEach((row) => {
+//     const key: any = row[currentField] ?? "Unknown";
+//     if (!grouped[key]) grouped[key] = [];
+//     grouped[key].push(row);
+//   });
+
+//   return Object.entries(grouped).map(([key, rows]) => {
+//     const childRows = buildGroupedRows(rows, rowFields, level + 1);
+//     const sample = rows[0];
+
+//     return {
+//       id: rowFields
+//         .slice(0, level + 1)
+//         .map((f) => sample[f])
+//         .join("|"),
+//       [currentField]: key,
+//       ...(!Array.isArray(childRows) ? {} : {}),
+//       subRows: Array.isArray(childRows) ? childRows : [],
+//     };
+//   });
+// }

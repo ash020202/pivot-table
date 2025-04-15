@@ -5,11 +5,10 @@ import {
   getSortedRowModel,
   SortingState,
   ColumnDef,
-  CellContext,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
-import { formatCellValue } from "../utils/pivotHelper";
+import { buildGroupedColumns } from "../utils/pivotHelper";
 import { DataRow, PivotTableProps } from "../utils/types";
 import RowGroup from "./RowGroup";
 import HeaderGroup from "./HeaderGroup";
@@ -18,18 +17,48 @@ export default function PivotTable({ data }: PivotTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   // console.log(data[0]);
 
-  const columns: ColumnDef<DataRow>[] =
-    data.length > 0
-      ? [
-          ...Object.keys(data[0]).map((col) => ({
-            accessorKey: col,
-            id: col,
-            header: col,
-            cell: (info: CellContext<DataRow, unknown>) =>
-              formatCellValue(info.getValue()),
-          })),
-        ]
-      : [];
+  // const columns: ColumnDef<DataRow>[] =
+  //   data.length > 0
+  //     ? [
+  //         ...Object.keys(data[0]).map((col) => ({
+  //           accessorKey: col,
+  //           id: col,
+  //           header: col,
+  //           cell: (info: CellContext<DataRow, unknown>) =>
+  //             formatCellValue(info.getValue()),
+  //         })),
+  //       ]
+  //     : [];
+
+  // const columns: ColumnDef<DataRow>[] =
+  //   data.length > 0
+  //     ? [
+  //         ...Object.keys(data[0]).map((col) => ({
+  //           accessorKey: col,
+  //           id: col,
+  //           header: () => {
+  //             // Customize the header rendering logic to treat leaf and parent columns
+  //             if (col.includes(" | ")) {
+  //               return (
+  //                 <>
+  //                   <div className="parent-column">
+  //                     {col.split(" | ")[0]} {/* Parent column */}
+  //                   </div>
+  //                   <div className="leaf-column">
+  //                     {col.split(" | ")[1]} {/* Leaf column */}
+  //                   </div>
+  //                 </>
+  //               );
+  //             }
+  //             return col; // For simple columns, return them as they are
+  //           },
+  //           cell: (info: CellContext<DataRow, unknown>) =>
+  //             formatCellValue(info.getValue()),
+  //         })),
+  //       ]
+  //     : [];
+
+  const columns: ColumnDef<DataRow>[] = buildGroupedColumns(data);
   // console.log(columns);
 
   const table = useReactTable({

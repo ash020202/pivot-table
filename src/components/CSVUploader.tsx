@@ -88,7 +88,7 @@ const CSVUploader = () => {
     setMeasureFields([]);
   };
 
-  const pivotData = useMemo(() => {
+  const groupedPivotData = useMemo(() => {
     return generatePivotData({
       rawData,
       rowFields,
@@ -96,6 +96,16 @@ const CSVUploader = () => {
       measureFields,
       aggregation,
     });
+    // const pivot = generatePivotData({
+    //   rawData,
+    //   rowFields,
+    //   columnFields,
+    //   measureFields,
+    //   aggregation,
+    // });
+
+    // const groupedRows = buildGroupedRows(pivot, rowFields);
+    // return groupedRows;
   }, [rawData, rowFields, columnFields, measureFields, aggregation]);
   return (
     <div className="p-4 flex flex-col items-center justify-center min-h-screen">
@@ -117,7 +127,8 @@ const CSVUploader = () => {
       </p>
 
       <div className="flex pt-5">
-        <PivotTable data={pivotData} />
+        {/* <PivotTable data={pivotData} /> */}
+        <PivotTable data={groupedPivotData} />
 
         {rawData.length > 0 && (
           <div className="flex flex-col h-[525px] items-center gap-2 p-5 ">
