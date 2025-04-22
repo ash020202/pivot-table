@@ -26,3 +26,18 @@
 ::-webkit-scrollbar-thumb:hover {
   background-color: #64748b; /* Slate-500 on hover */
 }
+
+@keyframes fadeUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+}
+
+.animate-fade-up-once {
+  animation: fade-up-once 1s ease-out;
+}

@@ -4,6 +4,7 @@ import { generatePivotData } from "../utils/pivotHelper";
 import PivotTable from "./PivotTable";
 import FieldSelectors from "./FieldSelectors";
 import { DataRow } from "../utils/types";
+import { useCreditManager } from "../context/creditContext";
 
 const CSVUploader = () => {
   const [rawData, setRawData] = useState<DataRow[]>([]);
@@ -15,8 +16,11 @@ const CSVUploader = () => {
   const [categoricalColumns, setCategoricalColumns] = useState<string[]>([]);
   const [aggregation, setAggregation] = useState<string>("SUM");
   const [fileName, setFileName] = useState("");
+  const { handleActivity, resetCredits } = useCreditManager();
+  // console.log(history);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleActivity("upload");
     const file = e.target.files?.[0];
     if (!file) return;
     if (file) {
@@ -83,6 +87,7 @@ const CSVUploader = () => {
   // console.log(rawData[0]);
 
   const resetFields = () => {
+    resetCredits();
     setRowFields([]);
     setColumnFields([]);
     setMeasureFields([]);
@@ -112,6 +117,7 @@ const CSVUploader = () => {
       <h2 className="text-xl font-bold mb-2">
         CSV / Excel Viewer + Pivot Table
       </h2>
+
       <label className="flex flex-col items-center justify-center px-6 py-4 bg-white text-green-500 border-2 border-dashed border-green-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-all duration-300">
         <span className="text-3xl mb-2">📁</span>
         <span className="text-sm font-medium">Upload CSV/Excel</span>
@@ -133,7 +139,7 @@ const CSVUploader = () => {
         {rawData.length > 0 && (
           <div className="flex flex-col h-[525px] items-center gap-2 p-5 ">
             <div className="h-[510px] w-full overflow-y-auto">
-              <div className="sticky top-0 bg-[#f0f0f0] z-10 pb-2">
+              <div className="sticky top-0 bg-[#f0f0f0] z-2 pb-2">
                 <p className="p-1 text-lg font-semibold">Pivot Table Fields</p>
                 <p className="p-1 text-sm ">Choose Fields To Add To Report</p>
               </div>

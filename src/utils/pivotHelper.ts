@@ -95,6 +95,31 @@ export function generatePivotData({
     result.push(rowObj);
   }
   // console.log("resultmap", resultMap);
+  if (result.length > 0) {
+    const grandTotal: DataRow = {};
+
+    rowFields.forEach((field, index) => {
+      grandTotal[field] = index === 0 ? `Grand Total` : "";
+    });
+    allColumnKeys.forEach((colKey) => {
+      let total = 0;
+      console.log(result);
+      result.forEach((row) => {
+        const val = Number(row[colKey]) || 0;
+        total += val;
+      });
+
+      grandTotal[colKey] = formatCellValue(
+        aggregation === "AVG"
+          ? total / result.length
+          : aggregation === "COUNT"
+          ? result.length
+          : total
+      );
+    });
+
+    result.push(grandTotal);
+  }
 
   return result;
 }

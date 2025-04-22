@@ -1,5 +1,6 @@
 import React from "react";
 import { ReusableSelectProps } from "../utils/types";
+import { useCreditManager } from "../context/creditContext";
 
 const ReusableSelect = ({
   value,
@@ -10,6 +11,7 @@ const ReusableSelect = ({
   isMulti = false,
 }: ReusableSelectProps) => {
   // Convert string array options to Option objects
+  const { handleActivity } = useCreditManager();
   const optionObjects = options.map((opt) =>
     typeof opt === "string" ? { label: opt, value: opt } : opt
   );
@@ -25,18 +27,19 @@ const ReusableSelect = ({
   const handleCheckboxChange = (optionValue: string) => {
     if (isMulti) {
       const currentValues = Array.isArray(value) ? value : [];
-
       if (currentValues.includes(optionValue)) {
         // Remove the option if it's already selected
         onChange(currentValues.filter((v) => v !== optionValue));
       } else {
         // Add the option if it's not selected
         onChange([...currentValues, optionValue]);
+        handleActivity("pivot");
       }
     }
   };
 
   const handleSingleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    handleActivity("aggregation");
     onChange(e.target.value);
   };
 
