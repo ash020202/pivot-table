@@ -34,7 +34,7 @@ export default function FieldSelectors({
 
   // Type-safe wrapper for single-select handler
   const handleAggregationChange = (value: string | string[]) => {
-    if (typeof value === "string") {
+    if (Array.isArray(value)) {
       setAggregation(value);
     }
   };
@@ -70,6 +70,7 @@ export default function FieldSelectors({
 
       <p className="font-semibold">Select Aggregation Type</p>
       <ReusableSelect
+        isMulti
         value={aggregation}
         onChange={handleAggregationChange}
         options={["SUM", "AVG", "COUNT"]}

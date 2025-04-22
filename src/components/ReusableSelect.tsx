@@ -29,6 +29,7 @@ const ReusableSelect = ({
       const currentValues = Array.isArray(value) ? value : [];
       if (currentValues.includes(optionValue)) {
         // Remove the option if it's already selected
+        console.log(optionValue);
         onChange(currentValues.filter((v) => v !== optionValue));
       } else {
         // Add the option if it's not selected

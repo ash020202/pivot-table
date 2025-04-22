@@ -13,8 +13,8 @@ export type FieldSelectorsProps = {
   measureFields: string[];
   setMeasureFields: (fields: string[]) => void;
   rowAndColOptions: string[];
-  aggregation: string;
-  setAggregation: (agg: string) => void;
+  aggregation: string[];
+  setAggregation: (agg: string[]) => void;
 };
 // Aggregation types
 export type AggregationType = "SUM" | "AVG" | "COUNT";
@@ -28,7 +28,7 @@ export type PivotFunctionProps = {
   rowFields: string[];
   columnFields: string[];
   measureFields: string[];
-  aggregation: string;
+  aggregation: string[];
 };
 
 export interface RowGroupProps {
@@ -54,4 +54,19 @@ export type ReusableSelectProps = {
   placeholder?: string;
   disabledOptions?: Array<string | Option>;
   isMulti?: boolean;
+};
+
+type ColumnLeaf = {
+  accessorKey: string;
+  id: string;
+  header: string;
+  cell: (info: { getValue: () => any }) => any;
+};
+
+export type ColumnNode = {
+  children: ColumnTree;
+};
+
+export type ColumnTree = {
+  [key: string]: ColumnLeaf | ColumnNode;
 };

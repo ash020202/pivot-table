@@ -14,7 +14,7 @@ const CSVUploader = () => {
 
   const [numericColumns, setNumericColumns] = useState<string[]>([]);
   const [categoricalColumns, setCategoricalColumns] = useState<string[]>([]);
-  const [aggregation, setAggregation] = useState<string>("SUM");
+  const [aggregation, setAggregation] = useState<string[]>(["SUM"]);
   const [fileName, setFileName] = useState("");
   const { handleActivity, resetCredits } = useCreditManager();
   // console.log(history);
@@ -40,28 +40,6 @@ const CSVUploader = () => {
       });
 
       if (jsonData.length > 0) {
-        // const inferredTypes: Record<string, string> = {};
-        // const firstRowValues = Object.values(jsonData[0]);
-
-        // Object.entries(firstRowValues).forEach(([key, value]) => {
-        //   const type = typeof value;
-
-        //   if (type === "string") {
-        //     // Check if it's a date string
-        //     if (!isNaN(Date.parse(value))) {
-        //       inferredTypes[key] = "date";
-        //     } else {
-        //       inferredTypes[key] = "string";
-        //     }
-        //   } else if (type === "number") {
-        //     inferredTypes[key] = "number";
-        //   } else {
-        //     inferredTypes[key] = "string"; // fallback
-        //   }
-        // });
-
-        // console.log(inferredTypes);
-
         const allCols = Object.keys(jsonData[0]);
 
         const numericCols = allCols.filter((col) =>
@@ -101,16 +79,6 @@ const CSVUploader = () => {
       measureFields,
       aggregation,
     });
-    // const pivot = generatePivotData({
-    //   rawData,
-    //   rowFields,
-    //   columnFields,
-    //   measureFields,
-    //   aggregation,
-    // });
-
-    // const groupedRows = buildGroupedRows(pivot, rowFields);
-    // return groupedRows;
   }, [rawData, rowFields, columnFields, measureFields, aggregation]);
   return (
     <div className="p-4 flex flex-col items-center justify-center min-h-screen">
@@ -133,7 +101,6 @@ const CSVUploader = () => {
       </p>
 
       <div className="flex pt-5">
-        {/* <PivotTable data={pivotData} /> */}
         <PivotTable data={groupedPivotData} />
 
         {rawData.length > 0 && (

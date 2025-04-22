@@ -6,7 +6,7 @@ export function generatePivotData({
   rowFields = [],
   columnFields = [],
   measureFields = [],
-  aggregation = "SUM",
+  aggregation = ["SUM"],
 }: PivotFunctionProps): DataRow[] {
   if (!rowFields.length && !columnFields.length && !measureFields.length) {
     return rawData;
@@ -45,20 +45,38 @@ export function generatePivotData({
     }
 
     // If measures exist, aggregate
+    // measureFields.forEach((measure) => {
+    //   const finalColKey = colKey
+    //     ? `${colKey} | ${aggregation} of ${measure}`
+    //     : `${aggregation} of ${measure}`;
+    //   const value = Number(row[measure]) || 0;
+
+    //   if (!grouped[rowKey]) grouped[rowKey] = {};
+    //   if (!grouped[rowKey][finalColKey]) {
+    //     grouped[rowKey][finalColKey] = [];
+    //   }
+    //   grouped[rowKey][finalColKey].push(value);
+    //   allColumnKeys.add(finalColKey);
+
+    //   resultMap.set(rowKey, rowObj); // save row
+    // });
     measureFields.forEach((measure) => {
-      const finalColKey = colKey
-        ? `${colKey} | ${aggregation} of ${measure}`
-        : `${aggregation} of ${measure}`;
-      const value = Number(row[measure]) || 0;
+      aggregation.forEach((aggType) => {
+        const finalColKey = colKey
+          ? `${colKey} | ${aggType} of ${measure}`
+          : `${aggType} of ${measure}`;
+        const value = Number(row[measure]) || 0;
 
-      if (!grouped[rowKey]) grouped[rowKey] = {};
-      if (!grouped[rowKey][finalColKey]) {
-        grouped[rowKey][finalColKey] = [];
-      }
-      grouped[rowKey][finalColKey].push(value);
-      allColumnKeys.add(finalColKey);
+        if (!grouped[rowKey]) grouped[rowKey] = {};
+        if (!grouped[rowKey][finalColKey]) {
+          grouped[rowKey][finalColKey] = [];
+        }
 
-      resultMap.set(rowKey, rowObj); // save row
+        grouped[rowKey][finalColKey].push(value);
+        allColumnKeys.add(finalColKey);
+
+        resultMap.set(rowKey, rowObj);
+      });
     });
   });
 
@@ -70,16 +88,12 @@ export function generatePivotData({
     if (values) {
       Object.entries(values).forEach(([colKey, valArray]) => {
         let agg = 0;
-        switch (aggregation) {
-          case "SUM":
-            agg = valArray.reduce((a, b) => a + b, 0);
-            break;
-          case "AVG":
-            agg = valArray.reduce((a, b) => a + b, 0) / valArray.length;
-            break;
-          case "COUNT":
-            agg = valArray.length;
-            break;
+        if (colKey.includes("SUM")) {
+          agg = valArray.reduce((a, b) => a + b, 0);
+        } else if (colKey.includes("AVG")) {
+          agg = valArray.reduce((a, b) => a + b, 0) / valArray.length;
+        } else if (colKey.includes("COUNT")) {
+          agg = valArray.length;
         }
         rowObj[colKey] = formatCellValue(agg);
       });
@@ -98,24 +112,57 @@ export function generatePivotData({
   if (result.length > 0) {
     const grandTotal: DataRow = {};
 
+    // Label the row
     rowFields.forEach((field, index) => {
-      grandTotal[field] = index === 0 ? `Grand Total` : "";
+      grandTotal[field] = index === 0 ? "Grand Total" : "";
     });
+
+    // For each column key
     allColumnKeys.forEach((colKey) => {
-      let total = 0;
-      console.log(result);
+      const values: number[] = [];
+
       result.forEach((row) => {
-        const val = Number(row[colKey]) || 0;
-        total += val;
+        const val = Number(row[colKey]);
+        if (!isNaN(val)) values.push(val);
       });
 
-      grandTotal[colKey] = formatCellValue(
-        aggregation === "AVG"
-          ? total / result.length
-          : aggregation === "COUNT"
-          ? result.length
-          : total
-      );
+      // Identify aggregation type from colKey
+      if (Array.isArray(aggregation)) {
+        const matchingAgg = aggregation.find((agg) =>
+          colKey.includes(`| ${agg} of`)
+        );
+
+        if (matchingAgg) {
+          let aggValue = 0;
+          switch (matchingAgg) {
+            case "SUM":
+              aggValue = values.reduce((a, b) => a + b, 0);
+              break;
+            case "AVG":
+              aggValue = values.reduce((a, b) => a + b, 0) / values.length;
+              break;
+            case "COUNT":
+              aggValue = values.length;
+              break;
+          }
+          grandTotal[colKey] = formatCellValue(aggValue);
+        }
+      } else {
+        // fallback for single aggregation (string case)
+        let aggValue = 0;
+        switch (aggregation) {
+          case "SUM":
+            aggValue = values.reduce((a, b) => a + b, 0);
+            break;
+          case "AVG":
+            aggValue = values.reduce((a, b) => a + b, 0) / values.length;
+            break;
+          case "COUNT":
+            aggValue = values.length;
+            break;
+        }
+        grandTotal[colKey] = formatCellValue(aggValue);
+      }
     });
 
     result.push(grandTotal);
@@ -124,14 +171,6 @@ export function generatePivotData({
   return result;
 }
 
-// export function formatCellValue(value: any): string | number {
-//   if (value instanceof Date) {
-//     return value.toLocaleDateString("en-GB");
-//   } else if (typeof value === "number") {
-//     return Number.isInteger(value) ? value : value.toFixed(2);
-//   }
-//   return value;
-// }
 export function formatCellValue(value: any): string | number {
   if (value instanceof Date) {
     return value.toLocaleDateString("en-GB");
@@ -150,37 +189,56 @@ export function formatCellValue(value: any): string | number {
 export function buildGroupedColumns(data: DataRow[]): ColumnDef<DataRow>[] {
   if (!data.length) return [];
 
-  const columnMap: Record<string, ColumnDef<DataRow>[]> = {};
-  const simpleColumns: ColumnDef<DataRow>[] = [];
+  const columnsTree: any = {};
 
-  Object.keys(data[0]).forEach((key) => {
-    if (key.includes(" | ")) {
-      const [parent, child] = key.split(" | ");
-      if (!columnMap[parent]) columnMap[parent] = [];
-      columnMap[parent].push({
-        accessorKey: key,
-        id: key,
-        header: child,
-        cell: (info) => formatCellValue(info.getValue()),
-      });
+  Object.keys(data[0]).forEach((fullKey) => {
+    const levels = fullKey.split(" | ");
+    if (levels.length === 1) {
+      // Simple column
+      columnsTree[fullKey] = {
+        accessorKey: fullKey,
+        id: fullKey,
+        header: fullKey,
+        cell: (info: { getValue: () => any }) =>
+          formatCellValue(info.getValue()),
+      };
     } else {
-      simpleColumns.push({
-        accessorKey: key,
-        id: key,
-        header: key,
-        cell: (info) => formatCellValue(info.getValue()),
-      });
+      let current = columnsTree;
+
+      // Walk through tree levels except last (it's leaf column)
+      for (let i = 0; i < levels.length - 1; i++) {
+        const level = levels[i];
+        current[level] = current[level] || { children: {} };
+        current = current[level].children;
+      }
+
+      const leaf = levels[levels.length - 1];
+      console.log(leaf);
+
+      current[leaf] = {
+        accessorKey: fullKey,
+        id: fullKey,
+        header: leaf,
+        cell: (info: { getValue: () => any }) =>
+          formatCellValue(info.getValue()),
+      };
     }
   });
 
-  // Combine simple columns + grouped columns
-  return [
-    ...simpleColumns,
-    ...Object.entries(columnMap).map(([parent, children]) => ({
-      header: parent,
-      columns: children,
-    })),
-  ];
+  function buildColumns(tree: any): ColumnDef<DataRow>[] {
+    return Object.entries(tree).map(([key, value]: [string, any]) => {
+      if (value.accessorKey) {
+        return value;
+      } else {
+        return {
+          header: key,
+          columns: buildColumns(value.children),
+        };
+      }
+    });
+  }
+
+  return buildColumns(columnsTree);
 }
 
 // export function buildGroupedRows(
