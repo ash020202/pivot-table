@@ -11,9 +11,8 @@ export default function FieldSelectors({
   measureFields,
   setMeasureFields,
   rowAndColOptions,
-  aggregation,
-  setAggregation,
-}: FieldSelectorsProps) {
+}: // setAggregation,
+FieldSelectorsProps) {
   // Type-safe wrapper functions for multi-select handlers
   const [measureAggregations, setMeasureAggregations] = useState<
     Record<string, string[]>
@@ -38,11 +37,11 @@ export default function FieldSelectors({
   };
 
   // Type-safe wrapper for single-select handler
-  const handleAggregationChange = (value: string | string[]) => {
-    if (Array.isArray(value)) {
-      setAggregation(value);
-    }
-  };
+  // const handleAggregationChange = (value: string | string[]) => {
+  //   if (Array.isArray(value)) {
+  //     setAggregation(value);
+  //   }
+  // };
 
   const handleAggregationChangeForMeasure = (field: string, type: string) => {
     setMeasureAggregations((prev) => {
