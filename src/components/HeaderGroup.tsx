@@ -10,7 +10,7 @@ const HeaderGroup = ({ headerGroup }: HeaderGroupProps) => {
         return (
           <div
             key={header.id}
-            className="text-[14px] border px-4 py-2 text-center font-bold relative cursor-pointer select-none overflow-hidden text-ellipsis whitespace-nowrap"
+            className="text-[14px] flex border px-4 py-2 text-center font-bold relative cursor-pointer select-none overflow-hidden text-ellipsis whitespace-nowrap"
             onClick={header.column.getToggleSortingHandler()}
             style={{
               width: header.getSize(),
@@ -20,7 +20,13 @@ const HeaderGroup = ({ headerGroup }: HeaderGroupProps) => {
             }}
           >
             {flexRender(header.column.columnDef.header, header.getContext())}
-            {isSorted === "asc" ? " 🔼" : isSorted === "desc" ? " 🔽" : ""}
+            {isSorted === "asc" ? (
+              " 🔼"
+            ) : isSorted === "desc" ? (
+              " 🔽"
+            ) : (
+              <p className="ml-2">⬍</p>
+            )}
             {header.column.getCanResize() && (
               <div
                 onMouseDown={header.getResizeHandler()}

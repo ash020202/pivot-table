@@ -1,4 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
+
 import { DataRow, PivotFunctionProps } from "./types";
 
 export function generatePivotData({
@@ -7,8 +8,19 @@ export function generatePivotData({
   columnFields = [],
   measureFields = [],
   aggregation = ["SUM"],
+  measureAggregations = {},
 }: PivotFunctionProps): DataRow[] {
-  if (!rowFields.length && !columnFields.length && !measureFields.length) {
+  console.log("Generating pivot with:", {
+    rowFields,
+    columnFields,
+    measureFields,
+    aggregation,
+    measureAggregations,
+  });
+  if (
+    !rawData.length ||
+    (!rowFields.length && !columnFields.length && !measureFields.length)
+  ) {
     return rawData;
   }
 
@@ -36,7 +48,6 @@ export function generatePivotData({
     if (!measureFields.length) {
       const finalColKey = colKey || "Count";
       const prev = Number(rowObj[finalColKey]) || 0;
-      // const prev = rowObj[finalColKey] || 0;
       rowObj[finalColKey] = prev + 1;
 
       allColumnKeys.add(finalColKey);
@@ -44,27 +55,16 @@ export function generatePivotData({
       return;
     }
 
-    // If measures exist, aggregate
-    // measureFields.forEach((measure) => {
-    //   const finalColKey = colKey
-    //     ? `${colKey} | ${aggregation} of ${measure}`
-    //     : `${aggregation} of ${measure}`;
-    //   const value = Number(row[measure]) || 0;
-
-    //   if (!grouped[rowKey]) grouped[rowKey] = {};
-    //   if (!grouped[rowKey][finalColKey]) {
-    //     grouped[rowKey][finalColKey] = [];
-    //   }
-    //   grouped[rowKey][finalColKey].push(value);
-    //   allColumnKeys.add(finalColKey);
-
-    //   resultMap.set(rowKey, rowObj); // save row
-    // });
+    // If measures exist, aggregate based on per-measure aggregation types
     measureFields.forEach((measure) => {
-      aggregation.forEach((aggType) => {
+      // Use measure-specific aggregations if available, otherwise use global
+      const aggTypesToUse = measureAggregations[measure] || aggregation;
+
+      aggTypesToUse.forEach((aggType) => {
         const finalColKey = colKey
           ? `${colKey} | ${aggType} of ${measure}`
           : `${aggType} of ${measure}`;
+        console.log("Creating column:", finalColKey);
         const value = Number(row[measure]) || 0;
 
         if (!grouped[rowKey]) grouped[rowKey] = {};
@@ -108,8 +108,8 @@ export function generatePivotData({
 
     result.push(rowObj);
   }
-  // console.log("resultmap", resultMap);
-  // 👇 Add Grand Total row if any rowFields or columnFields are selected
+
+  // Add Grand Total row if any rowFields or columnFields are selected
   if (rowFields.length || columnFields.length) {
     const grandTotal: DataRow = {};
 
@@ -135,7 +135,10 @@ export function generatePivotData({
         if (colKey.includes("SUM")) {
           aggValue = values.reduce((a, b) => a + b, 0);
         } else if (colKey.includes("AVG")) {
-          aggValue = values.reduce((a, b) => a + b, 0) / values.length;
+          // For grand total of averages, we average the averages
+          aggValue = values.length
+            ? values.reduce((a, b) => a + b, 0) / values.length
+            : 0;
         } else if (colKey.includes("COUNT") || colKey === "Count") {
           aggValue = values.reduce((a, b) => a + b, 0);
         }
@@ -154,7 +157,7 @@ export function formatCellValue(value: any): string | number {
   if (value instanceof Date) {
     return value.toLocaleDateString("en-GB");
   } else if (typeof value === "number") {
-    return Number.isInteger(value) ? value : value.toFixed(2);
+    return Number.isInteger(value) ? value : Number(value.toFixed(2));
   } else if (typeof value === "object" && value !== null) {
     // Convert object to a readable string
     return Object.entries(value)
@@ -192,7 +195,7 @@ export function buildGroupedColumns(data: DataRow[]): ColumnDef<DataRow>[] {
       }
 
       const leaf = levels[levels.length - 1];
-      console.log(leaf);
+      // console.log(leaf);
 
       current[leaf] = {
         accessorKey: fullKey,

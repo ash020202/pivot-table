@@ -29,6 +29,7 @@ export type PivotFunctionProps = {
   columnFields: string[];
   measureFields: string[];
   aggregation: string[];
+  measureAggregations?: Record<string, string[]>;
 };
 
 export interface RowGroupProps {
@@ -54,6 +55,9 @@ export type ReusableSelectProps = {
   placeholder?: string;
   disabledOptions?: Array<string | Option>;
   isMulti?: boolean;
+  isMeasureCol?: boolean;
+  measureAggregations?: Record<string, string[]>;
+  onAggChange?: (field: string, type: string) => void;
 };
 
 type ColumnLeaf = {
