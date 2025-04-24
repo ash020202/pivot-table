@@ -4,19 +4,36 @@ import { HeaderGroup as TanStackHeaderGroup } from "@tanstack/react-table";
 // A single row from the uploaded file
 export type DataRow = Record<string, string | number | Date | null | undefined>;
 
-export type FieldSelectorsProps = {
+// export type FieldSelectorsProps = {
+//   numericColumns: string[];
+//   rowFields: string[];
+//   setRowFields: (fields: string[]) => void;
+//   columnFields: string[];
+//   setColumnFields: (fields: string[]) => void;
+//   measureFields: string[];
+//   setMeasureFields: (fields: string[]) => void;
+//   rowAndColOptions: string[];
+//   aggregation: string[];
+//   setAggregation: (agg: string[]) => void;
+// };
+// Aggregation types
+
+export interface FieldSelectorsProps {
   numericColumns: string[];
   rowFields: string[];
-  setRowFields: (fields: string[]) => void;
+  setRowFields: React.Dispatch<React.SetStateAction<string[]>>;
   columnFields: string[];
-  setColumnFields: (fields: string[]) => void;
+  setColumnFields: React.Dispatch<React.SetStateAction<string[]>>;
   measureFields: string[];
-  setMeasureFields: (fields: string[]) => void;
+  setMeasureFields: React.Dispatch<React.SetStateAction<string[]>>;
   rowAndColOptions: string[];
   aggregation: string[];
-  setAggregation: (agg: string[]) => void;
-};
-// Aggregation types
+  setAggregation: React.Dispatch<React.SetStateAction<string[]>>;
+  measureAggregations: Record<string, string[]>;
+  setMeasureAggregations: React.Dispatch<
+    React.SetStateAction<Record<string, string[]>>
+  >;
+}
 export type AggregationType = "SUM" | "AVG" | "COUNT";
 
 export type PivotTableProps = {

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { FieldSelectorsProps } from "../utils/types";
 import ReusableSelect from "./ReusableSelect";
 
@@ -11,13 +10,9 @@ export default function FieldSelectors({
   measureFields,
   setMeasureFields,
   rowAndColOptions,
-}: // setAggregation,
-FieldSelectorsProps) {
-  // Type-safe wrapper functions for multi-select handlers
-  const [measureAggregations, setMeasureAggregations] = useState<
-    Record<string, string[]>
-  >({});
-
+  measureAggregations, // Add this prop
+  setMeasureAggregations, // Add this prop
+}: FieldSelectorsProps) {
   const handleRowFieldsChange = (value: string | string[]) => {
     if (Array.isArray(value)) {
       setRowFields(value);
@@ -36,13 +31,6 @@ FieldSelectorsProps) {
     }
   };
 
-  // Type-safe wrapper for single-select handler
-  // const handleAggregationChange = (value: string | string[]) => {
-  //   if (Array.isArray(value)) {
-  //     setAggregation(value);
-  //   }
-  // };
-
   const handleAggregationChangeForMeasure = (field: string, type: string) => {
     setMeasureAggregations((prev) => {
       const current = prev[field] || [];
@@ -52,7 +40,6 @@ FieldSelectorsProps) {
         return { ...prev, [field]: [...current, type] }; // Check
       }
     });
-    console.log(measureAggregations);
   };
 
   return (
@@ -88,24 +75,6 @@ FieldSelectorsProps) {
         measureAggregations={measureAggregations}
         onAggChange={handleAggregationChangeForMeasure}
       />
-
-      {/* <ReusableSelect
-        isMulti
-        isMeasureCol
-        value={measureFields}
-        onChange={handleMeasureFieldsChange}
-        options={numericColumns}
-        placeholder="-- Select Measure Field(s) --"
-      /> */}
-
-      {/* <p className="font-semibold">Select Aggregation Type</p>
-      <ReusableSelect
-        isMulti
-        value={aggregation}
-        onChange={handleAggregationChange}
-        options={["SUM", "AVG", "COUNT"]}
-        placeholder="-- Select Aggregation --"
-      /> */}
     </div>
   );
 }

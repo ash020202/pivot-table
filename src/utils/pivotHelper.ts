@@ -10,13 +10,6 @@ export function generatePivotData({
   aggregation = ["SUM"],
   measureAggregations = {},
 }: PivotFunctionProps): DataRow[] {
-  console.log("Generating pivot with:", {
-    rowFields,
-    columnFields,
-    measureFields,
-    aggregation,
-    measureAggregations,
-  });
   if (
     !rawData.length ||
     (!rowFields.length && !columnFields.length && !measureFields.length)
@@ -107,6 +100,7 @@ export function generatePivotData({
     });
 
     result.push(rowObj);
+    console.log(result);
   }
 
   // Add Grand Total row if any rowFields or columnFields are selected
@@ -154,12 +148,54 @@ export function generatePivotData({
 }
 
 export function formatCellValue(value: any): string | number {
+  // First check if it's already a Date object
   if (value instanceof Date) {
     return value.toLocaleDateString("en-GB");
-  } else if (typeof value === "number") {
+  }
+
+  // For strings, attempt to detect date formats
+  else if (typeof value === "string") {
+    // Check for common date patterns
+    if (/^\d{1,4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,4}$/.test(value)) {
+      const dateObj = new Date(value);
+      if (!isNaN(dateObj.getTime())) {
+        return dateObj.toLocaleDateString("en-GB");
+      }
+    }
+    return value;
+  }
+
+  // For Excel date serials (without breaking other numbers)
+  else if (typeof value === "number") {
+    // Excel date serials typically fall in specific ranges
+    // 1 = January 1, 1900, modern dates are typically 40000-50000
+    if (value > 35000 && value < 80000) {
+      try {
+        // Excel date calculation (adjust for Excel's 1900 leap year bug)
+        const excelEpoch = new Date(1899, 11, 30);
+        const possibleDate = new Date(
+          excelEpoch.getTime() + value * 24 * 60 * 60 * 1000
+        );
+
+        // Final validation - make sure it's not too far in the future or past
+        const currentYear = new Date().getFullYear();
+        if (
+          possibleDate.getFullYear() > 1920 &&
+          possibleDate.getFullYear() < currentYear + 10
+        ) {
+          return possibleDate.toLocaleDateString("en-GB");
+        }
+      } catch (e) {
+        // If conversion fails, treat as a regular number
+      }
+    }
+
+    // Regular number formatting
     return Number.isInteger(value) ? value : Number(value.toFixed(2));
-  } else if (typeof value === "object" && value !== null) {
-    // Convert object to a readable string
+  }
+
+  // Handle objects
+  else if (typeof value === "object" && value !== null) {
     return Object.entries(value)
       .map(([key, val]) => `${key}: ${val}`)
       .join(", ");
@@ -167,7 +203,6 @@ export function formatCellValue(value: any): string | number {
 
   return value ?? ""; // Handle null/undefined as empty string
 }
-
 export function buildGroupedColumns(data: DataRow[]): ColumnDef<DataRow>[] {
   if (!data.length) return [];
 
