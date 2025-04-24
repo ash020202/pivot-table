@@ -109,15 +109,15 @@ export function generatePivotData({
     result.push(rowObj);
   }
   // console.log("resultmap", resultMap);
-  if (result.length > 0) {
+  // 👇 Add Grand Total row if any rowFields or columnFields are selected
+  if (rowFields.length || columnFields.length) {
     const grandTotal: DataRow = {};
 
-    // Label the row
+    // Set "Grand Total" label
     rowFields.forEach((field, index) => {
       grandTotal[field] = index === 0 ? "Grand Total" : "";
     });
 
-    // For each column key
     allColumnKeys.forEach((colKey) => {
       const values: number[] = [];
 
@@ -126,43 +126,22 @@ export function generatePivotData({
         if (!isNaN(val)) values.push(val);
       });
 
-      // Identify aggregation type from colKey
-      if (Array.isArray(aggregation)) {
-        const matchingAgg = aggregation.find((agg) =>
-          colKey.includes(`| ${agg} of`)
-        );
+      let aggValue = 0;
 
-        if (matchingAgg) {
-          let aggValue = 0;
-          switch (matchingAgg) {
-            case "SUM":
-              aggValue = values.reduce((a, b) => a + b, 0);
-              break;
-            case "AVG":
-              aggValue = values.reduce((a, b) => a + b, 0) / values.length;
-              break;
-            case "COUNT":
-              aggValue = values.length;
-              break;
-          }
-          grandTotal[colKey] = formatCellValue(aggValue);
-        }
+      // COUNT only logic (when no measureFields)
+      if (!measureFields.length) {
+        aggValue = values.reduce((a, b) => a + b, 0);
       } else {
-        // fallback for single aggregation (string case)
-        let aggValue = 0;
-        switch (aggregation) {
-          case "SUM":
-            aggValue = values.reduce((a, b) => a + b, 0);
-            break;
-          case "AVG":
-            aggValue = values.reduce((a, b) => a + b, 0) / values.length;
-            break;
-          case "COUNT":
-            aggValue = values.length;
-            break;
+        if (colKey.includes("SUM")) {
+          aggValue = values.reduce((a, b) => a + b, 0);
+        } else if (colKey.includes("AVG")) {
+          aggValue = values.reduce((a, b) => a + b, 0) / values.length;
+        } else if (colKey.includes("COUNT") || colKey === "Count") {
+          aggValue = values.reduce((a, b) => a + b, 0);
         }
-        grandTotal[colKey] = formatCellValue(aggValue);
       }
+
+      grandTotal[colKey] = formatCellValue(aggValue);
     });
 
     result.push(grandTotal);
