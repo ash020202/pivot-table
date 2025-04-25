@@ -93,11 +93,11 @@ export function generatePivotData({
     }
 
     // Fill 0 for missing columns
-    allColumnKeys.forEach((colKey) => {
-      if (!rowObj.hasOwnProperty(colKey)) {
-        rowObj[colKey] = formatCellValue(0);
-      }
-    });
+    // allColumnKeys.forEach((colKey) => {
+    //   if (!rowObj.hasOwnProperty(colKey)) {
+    //     rowObj[colKey] = formatCellValue(0);
+    //   }
+    // });
 
     result.push(rowObj);
     console.log(result);
@@ -206,13 +206,33 @@ export function formatCellValue(value: any): string | number {
 export function buildGroupedColumns(data: DataRow[]): ColumnDef<DataRow>[] {
   if (!data.length) return [];
 
-  const sortedKeys = Object.keys(data[0]).sort();
+  const allKeys = Object.keys(data[0]);
+
+  // Identify row field keys (e.g., "Region") dynamically
+  const rowFieldKeys = allKeys.filter(
+    (key) =>
+      !key.includes(" | ") &&
+      key !== "Count" &&
+      isNaN(Number(data[0][key])) &&
+      key !== "Grand Total"
+  );
+
+  const pivotKeys = allKeys.filter((key) => !rowFieldKeys.includes(key));
+
+  // Custom sorting: push "Grand Total" to bottom
+  const sortedPivotKeys = [...pivotKeys].sort((a, b) => {
+    if (a === "Grand Total") return 1;
+    if (b === "Grand Total") return -1;
+    return a.localeCompare(b);
+  });
+
+  const sortedKeys = [...rowFieldKeys, ...sortedPivotKeys];
+
   const columnsTree: any = {};
 
   sortedKeys.forEach((fullKey) => {
     const levels = fullKey.split(" | ");
     if (levels.length === 1) {
-      // Simple column
       columnsTree[fullKey] = {
         accessorKey: fullKey,
         id: fullKey,
@@ -223,7 +243,6 @@ export function buildGroupedColumns(data: DataRow[]): ColumnDef<DataRow>[] {
     } else {
       let current = columnsTree;
 
-      // Walk through tree levels except last (it's leaf column)
       for (let i = 0; i < levels.length - 1; i++) {
         const level = levels[i];
         current[level] = current[level] || { children: {} };
@@ -231,8 +250,6 @@ export function buildGroupedColumns(data: DataRow[]): ColumnDef<DataRow>[] {
       }
 
       const leaf = levels[levels.length - 1];
-      // console.log(leaf);
-
       current[leaf] = {
         accessorKey: fullKey,
         id: fullKey,
@@ -258,6 +275,62 @@ export function buildGroupedColumns(data: DataRow[]): ColumnDef<DataRow>[] {
 
   return buildColumns(columnsTree);
 }
+
+// export function buildGroupedColumns(data: DataRow[]): ColumnDef<DataRow>[] {
+//   if (!data.length) return [];
+
+//   const sortedKeys = Object.keys(data[0]);
+//   const columnsTree: any = {};
+
+//   sortedKeys.forEach((fullKey) => {
+//     const levels = fullKey.split(" | ");
+//     if (levels.length === 1) {
+//       // Simple column
+//       columnsTree[fullKey] = {
+//         accessorKey: fullKey,
+//         id: fullKey,
+//         header: fullKey,
+//         cell: (info: { getValue: () => any }) =>
+//           formatCellValue(info.getValue()),
+//       };
+//     } else {
+//       let current = columnsTree;
+
+//       // Walk through tree levels except last (it's leaf column)
+//       for (let i = 0; i < levels.length - 1; i++) {
+//         const level = levels[i];
+//         current[level] = current[level] || { children: {} };
+//         current = current[level].children;
+//       }
+
+//       const leaf = levels[levels.length - 1];
+//       // console.log(leaf);
+
+//       current[leaf] = {
+//         accessorKey: fullKey,
+//         id: fullKey,
+//         header: leaf,
+//         cell: (info: { getValue: () => any }) =>
+//           formatCellValue(info.getValue()),
+//       };
+//     }
+//   });
+
+//   function buildColumns(tree: any): ColumnDef<DataRow>[] {
+//     return Object.entries(tree).map(([key, value]: [string, any]) => {
+//       if (value.accessorKey) {
+//         return value;
+//       } else {
+//         return {
+//           header: key,
+//           columns: buildColumns(value.children),
+//         };
+//       }
+//     });
+//   }
+
+//   return buildColumns(columnsTree);
+// }
 
 // export function buildGroupedRows(
 //   data: DataRow[],

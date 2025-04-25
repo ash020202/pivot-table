@@ -1,6 +1,8 @@
 import { FieldSelectorsProps } from "../utils/types";
 import ReusableSelect from "./ReusableSelect";
-
+import rowIcon from "../assets/rows.svg";
+import valuesIcon from "../assets/valuesIcon.svg";
+import columnsIcon from "../assets/columns_icon.svg";
 export default function FieldSelectors({
   numericColumns,
   rowFields,
@@ -45,40 +47,7 @@ export default function FieldSelectors({
   return (
     <div className="flex flex-col gap-4 mb-4 p-1 ">
       <div className="flex items-end  gap-1">
-        <svg
-          height="20"
-          width="20"
-          viewBox="0 0 256 256"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <rect fill="none" height="256" width="256" />
-          <rect height="56" opacity="0.2" rx="8" width="176" x="40" y="144" />
-          <rect height="56" opacity="0.2" rx="8" width="176" x="40" y="56" />
-          <rect
-            fill="none"
-            height="56"
-            rx="8"
-            stroke="#000"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="16"
-            width="176"
-            x="40"
-            y="144"
-          />
-          <rect
-            fill="none"
-            height="56"
-            rx="8"
-            stroke="#000"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="16"
-            width="176"
-            x="40"
-            y="56"
-          />
-        </svg>
+        <img src={rowIcon} />
         <p className="font-semibold">Rows</p>
       </div>
       <ReusableSelect
@@ -90,58 +59,7 @@ export default function FieldSelectors({
         placeholder="-- Select Row Field(s) --"
       />
       <div className="flex items-center  gap-1">
-        <svg
-          height={20}
-          width={20}
-          viewBox="0 0 256 256"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <rect fill="none" height="256" width="256" />
-          <rect
-            height="56"
-            opacity="0.2"
-            rx="8"
-            transform="translate(212 44) rotate(90)"
-            width="176"
-            x="-4"
-            y="100"
-          />
-          <rect
-            height="56"
-            opacity="0.2"
-            rx="8"
-            transform="translate(300 -44) rotate(90)"
-            width="176"
-            x="84"
-            y="100"
-          />
-          <rect
-            fill="none"
-            height="56"
-            rx="8"
-            stroke="#000"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="16"
-            transform="translate(212 44) rotate(90)"
-            width="176"
-            x="-4"
-            y="100"
-          />
-          <rect
-            fill="none"
-            height="56"
-            rx="8"
-            stroke="#000"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="16"
-            transform="translate(300 -44) rotate(90)"
-            width="176"
-            x="84"
-            y="100"
-          />
-        </svg>
+        <img height={20} width={20} src={columnsIcon} />
         <p className="font-semibold">Columns</p>
       </div>
       <ReusableSelect
@@ -154,15 +72,7 @@ export default function FieldSelectors({
       />
 
       <div className="flex items-center  gap-2">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path d="M6 4v2.414l6.586 5.586L6 17.586V20h12v-2h-9.172l6.586-6.586-6.586-6.586H18V4H6z" />
-        </svg>
+        <img src={valuesIcon} alt="" />
         <p className="font-semibold">Values</p>
       </div>
       <ReusableSelect

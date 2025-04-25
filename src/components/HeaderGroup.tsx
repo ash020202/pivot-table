@@ -1,7 +1,19 @@
 import { flexRender } from "@tanstack/react-table";
 import { HeaderGroupProps } from "../utils/types";
-
+import sortUpArrow from "../assets/sortUpArrow.svg";
+import sortDownArrow from "../assets/sortDownArrow.svg";
+import initialSortIcon from "../assets/initialSortIcon.svg";
 const HeaderGroup = ({ headerGroup }: HeaderGroupProps) => {
+  const handleChangeType = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.button === 2) {
+      // Right-click detected
+      e.preventDefault(); // This prevents the context menu from showing
+      console.log("Right-click blocked via onMouseDown");
+    }
+  };
+  const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+  };
   return (
     <div key={headerGroup.id} className="flex w-full bg-[#ddebf7] ">
       {headerGroup.headers.map((header) => {
@@ -13,6 +25,8 @@ const HeaderGroup = ({ headerGroup }: HeaderGroupProps) => {
             key={header.id}
             className="text-[14px] border relative px-4 py-2 flex justify-center items-center gap-2"
             onClick={header.column.getToggleSortingHandler()}
+            onContextMenu={handleContextMenu}
+            onMouseDown={handleChangeType}
             style={{
               width: header.getSize(),
               minWidth: header.column.columnDef.minSize ?? 60,
@@ -21,7 +35,7 @@ const HeaderGroup = ({ headerGroup }: HeaderGroupProps) => {
             }}
           >
             <div className=" flex items-center justify-center gap-2 cursor-pointer select-none overflow-hidden  hover:transition-all hover:overflow-visible hover:bg-[#ddebf7] hover:">
-              <p className="text-center font-bold overflow-hidden text-ellipsis whitespace-nowrap">
+              <p className="text-center font-bold overflow-hidden text-ellipsis hover:overflow-visible whitespace-nowrap">
                 {flexRender(
                   header.column.columnDef.header,
                   header.getContext()
@@ -29,29 +43,11 @@ const HeaderGroup = ({ headerGroup }: HeaderGroupProps) => {
               </p>
               {isLeaf &&
                 (isSorted === "asc" ? (
-                  <svg
-                    height="15"
-                    viewBox="0 0 320 512"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M27.66 224h264.7c24.6 0 36.89-29.78 19.54-47.12l-132.3-136.8c-5.406-5.406-12.47-8.107-19.53-8.107c-7.055 0-14.09 2.701-19.45 8.107L8.119 176.9C-9.229 194.2 3.055 224 27.66 224z" />
-                  </svg>
+                  <img height={15} src={sortUpArrow} alt="" />
                 ) : isSorted === "desc" ? (
-                  <svg
-                    height="15"
-                    viewBox="0 0 320 512"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M311.9 335.1l-132.4 136.8C174.1 477.3 167.1 480 160 480c-7.055 0-14.12-2.702-19.47-8.109l-132.4-136.8C-9.229 317.8 3.055 288 27.66 288h264.7C316.9 288 329.2 317.8 311.9 335.1z" />
-                  </svg>
+                  <img height={15} src={sortDownArrow} alt="" />
                 ) : (
-                  <svg
-                    height="15"
-                    viewBox="0 0 320 512"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M27.66 224h264.7c24.6 0 36.89-29.78 19.54-47.12l-132.3-136.8c-5.406-5.406-12.47-8.107-19.53-8.107c-7.055 0-14.09 2.701-19.45 8.107L8.119 176.9C-9.229 194.2 3.055 224 27.66 224zM292.3 288H27.66c-24.6 0-36.89 29.77-19.54 47.12l132.5 136.8C145.9 477.3 152.1 480 160 480c7.053 0 14.12-2.703 19.53-8.109l132.3-136.8C329.2 317.8 316.9 288 292.3 288z" />
-                  </svg>
+                  <img height={15} src={initialSortIcon} alt="" />
                 ))}
             </div>
 

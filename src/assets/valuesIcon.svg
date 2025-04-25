@@ -1,0 +1,9 @@
+ <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path d="M6 4v2.414l6.586 5.586L6 17.586V20h12v-2h-9.172l6.586-6.586-6.586-6.586H18V4H6z" />
+        </svg>
