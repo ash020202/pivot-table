@@ -93,11 +93,11 @@ export function generatePivotData({
     }
 
     // Fill 0 for missing columns
-    // allColumnKeys.forEach((colKey) => {
-    //   if (!rowObj.hasOwnProperty(colKey)) {
-    //     rowObj[colKey] = formatCellValue(0);
-    //   }
-    // });
+    allColumnKeys.forEach((colKey) => {
+      if (!rowObj.hasOwnProperty(colKey)) {
+        rowObj[colKey] = formatCellValue("");
+      }
+    });
 
     result.push(rowObj);
     console.log(result);
@@ -114,11 +114,12 @@ export function generatePivotData({
 
     allColumnKeys.forEach((colKey) => {
       const values: number[] = [];
-
+      let nonZero: number[] = [];
       result.forEach((row) => {
         const val = Number(row[colKey]);
         if (!isNaN(val)) values.push(val);
       });
+      nonZero = values.filter((num) => num);
 
       let aggValue = 0;
 
@@ -131,7 +132,7 @@ export function generatePivotData({
         } else if (colKey.includes("AVG")) {
           // For grand total of averages, we average the averages
           aggValue = values.length
-            ? values.reduce((a, b) => a + b, 0) / values.length
+            ? values.reduce((a, b) => a + b, 0) / nonZero.length
             : 0;
         } else if (colKey.includes("COUNT") || colKey === "Count") {
           aggValue = values.reduce((a, b) => a + b, 0);
