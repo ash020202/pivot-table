@@ -5,7 +5,8 @@ import PivotTable from "./PivotTable";
 import FieldSelectors from "./FieldSelectors";
 import { DataRow } from "../utils/types";
 import { useCreditManager } from "../context/creditContext";
-
+import FileIcons from "./ui/FileIcons";
+import png from "../assets/reset_icon.png";
 const CSVUploader = () => {
   const [rawData, setRawData] = useState<DataRow[]>([]);
   const [rowFields, setRowFields] = useState<string[]>([]);
@@ -18,7 +19,7 @@ const CSVUploader = () => {
   const [numericColumns, setNumericColumns] = useState<string[]>([]);
   const [categoricalColumns, setCategoricalColumns] = useState<string[]>([]);
   const [aggregation, setAggregation] = useState<string[]>(["SUM"]);
-  const [fileName, setFileName] = useState("");
+  const [fileName, setFileName] = useState("No file Uploaded");
   const { handleActivity, resetCredits } = useCreditManager();
 
   // Effect to sync measureAggregations with the main component state
@@ -109,8 +110,9 @@ const CSVUploader = () => {
       </h2>
 
       <label className="flex flex-col items-center justify-center px-6 py-4 bg-white text-green-500 border-2 border-dashed border-green-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-all duration-300">
-        <span className="text-3xl mb-2">📁</span>
-        <span className="text-sm font-medium">Upload CSV/Excel</span>
+        {/* <span className="text-3xl mb-2">📁</span> */}
+        <FileIcons />
+        {/* <span className="text-sm font-medium">Upload CSV/Excel</span> */}
         <input
           type="file"
           accept=".csv, .xls, .xlsx"
@@ -150,9 +152,10 @@ const CSVUploader = () => {
             </div>
             <button
               onClick={resetFields}
-              className="px-4 py-2 bg-red-400 text-white rounded-md hover:bg-red-600 cursor-pointer"
+              className="px-4 py-2 flex justify-center items-center gap-2 bg-green-700 text-white rounded-md hover:bg-red-600 cursor-pointer"
             >
               Reset
+              <img className="h-[20px] w-[20px]" src={png} />
             </button>
           </div>
         )}

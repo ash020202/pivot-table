@@ -27,6 +27,26 @@
   background-color: #64748b; /* Slate-500 on hover */
 }
 
+.cls-1 {
+  fill: #4caf50;
+}
+.cls-2 {
+  fill: #b9f6ca;
+}
+.cls-3 {
+  fill: #e8f5e9;
+}
+
+.clsx-1 {
+  fill: #4caf50;
+}
+.clsx-2 {
+  fill: #b9f6ca;
+}
+.clsx-3 {
+  fill: #e8f5e9;
+}
+
 @keyframes fadeUp {
   0% {
     opacity: 1;

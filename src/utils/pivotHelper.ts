@@ -206,9 +206,10 @@ export function formatCellValue(value: any): string | number {
 export function buildGroupedColumns(data: DataRow[]): ColumnDef<DataRow>[] {
   if (!data.length) return [];
 
+  const sortedKeys = Object.keys(data[0]).sort();
   const columnsTree: any = {};
 
-  Object.keys(data[0]).forEach((fullKey) => {
+  sortedKeys.forEach((fullKey) => {
     const levels = fullKey.split(" | ");
     if (levels.length === 1) {
       // Simple column

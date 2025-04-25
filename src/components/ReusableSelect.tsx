@@ -100,6 +100,17 @@ const ReusableSelect = ({
                 onChange={() => handleCheckboxChange(option.value)}
                 disabled={isOptionDisabled(option.value)}
               />
+              {isMeasureCol && (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M6 4v2.414l6.586 5.586L6 17.586V20h12v-2h-9.172l6.586-6.586-6.586-6.586H18V4H6z" />
+                </svg>
+              )}
               <span>{option.label}</span>
               {isMeasureCol && (
                 <>
@@ -112,7 +123,19 @@ const ReusableSelect = ({
                     onClick={() => openMeasureOption(index)}
                     disabled={!selectedValues.includes(option.value)}
                   >
-                    ...
+                    <svg
+                      height="15"
+                      width="15"
+                      id="Layer_1"
+                      enableBackground="new 0 0 512 512"
+                      version="1.1"
+                      viewBox="0 0 512 512"
+                      xmlSpace="preserve"
+                      xmlns="http://www.w3.org/2000/svg"
+                      xmlnsXlink="http://www.w3.org/1999/xlink"
+                    >
+                      <polygon points="396.6,160 416,180.7 256,352 96,180.7 115.3,160 256,310.5 " />
+                    </svg>
                   </button>
                   {openModal === index && (
                     <MeasureOptions
