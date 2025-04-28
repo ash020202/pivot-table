@@ -24,17 +24,20 @@ export function generatePivotData({
 
   rawData.forEach((row) => {
     const rowKey = rowFields
-      .map((field) => formatCellValue(row[field]))
+      .map((field) => formatCellValue(row[field.label]))
       .join(" | ");
     const colKey = columnFields.length
-      ? columnFields.map((field) => formatCellValue(row[field])).join(" | ")
+      ? columnFields
+          .map((field) => formatCellValue(row[field.label]))
+          .join(" | ")
       : "";
+    console.log(colKey);
 
     const rowObj = resultMap.get(rowKey) || {};
 
     // Set row fields
     rowFields.forEach((field) => {
-      rowObj[field] = formatCellValue(row[field]);
+      rowObj[field.label] = formatCellValue(row[field.label]);
     });
 
     // If no measure, just track existence of row + column
@@ -50,15 +53,17 @@ export function generatePivotData({
 
     // If measures exist, aggregate based on per-measure aggregation types
     measureFields.forEach((measure) => {
+      console.log(measure);
+
       // Use measure-specific aggregations if available, otherwise use global
-      const aggTypesToUse = measureAggregations[measure] || aggregation;
+      const aggTypesToUse = measureAggregations[measure.label] || aggregation;
 
       aggTypesToUse.forEach((aggType) => {
         const finalColKey = colKey
-          ? `${colKey} | ${aggType} of ${measure}`
-          : `${aggType} of ${measure}`;
+          ? `${colKey} | ${aggType} of ${measure.label}`
+          : `${aggType} of ${measure.label}`;
         console.log("Creating column:", finalColKey);
-        const value = Number(row[measure]) || 0;
+        const value = Number(row[measure.label]) || 0;
 
         if (!grouped[rowKey]) grouped[rowKey] = {};
         if (!grouped[rowKey][finalColKey]) {
@@ -109,7 +114,7 @@ export function generatePivotData({
 
     // Set "Grand Total" label
     rowFields.forEach((field, index) => {
-      grandTotal[field] = index === 0 ? "Grand Total" : "";
+      grandTotal[field.label] = index === 0 ? "Grand Total" : "";
     });
 
     allColumnKeys.forEach((colKey) => {
@@ -167,33 +172,33 @@ export function formatCellValue(value: any): string | number {
   }
 
   // For Excel date serials (without breaking other numbers)
-  else if (typeof value === "number") {
-    // Excel date serials typically fall in specific ranges
-    // 1 = January 1, 1900, modern dates are typically 40000-50000
-    if (value > 35000 && value < 80000) {
-      try {
-        // Excel date calculation (adjust for Excel's 1900 leap year bug)
-        const excelEpoch = new Date(1899, 11, 30);
-        const possibleDate = new Date(
-          excelEpoch.getTime() + value * 24 * 60 * 60 * 1000
-        );
+  // else if (typeof value === "number") {
+  //   // Excel date serials typically fall in specific ranges
+  //   // 1 = January 1, 1900, modern dates are typically 40000-50000
+  //   if (value > 35000 && value < 80000) {
+  //     try {
+  //       // Excel date calculation (adjust for Excel's 1900 leap year bug)
+  //       const excelEpoch = new Date(1899, 11, 30);
+  //       const possibleDate = new Date(
+  //         excelEpoch.getTime() + value * 24 * 60 * 60 * 1000
+  //       );
 
-        // Final validation - make sure it's not too far in the future or past
-        const currentYear = new Date().getFullYear();
-        if (
-          possibleDate.getFullYear() > 1920 &&
-          possibleDate.getFullYear() < currentYear + 10
-        ) {
-          return possibleDate.toLocaleDateString("en-GB");
-        }
-      } catch (e) {
-        // If conversion fails, treat as a regular number
-      }
-    }
+  //       // Final validation - make sure it's not too far in the future or past
+  //       const currentYear = new Date().getFullYear();
+  //       if (
+  //         possibleDate.getFullYear() > 1920 &&
+  //         possibleDate.getFullYear() < currentYear + 10
+  //       ) {
+  //         return possibleDate.toLocaleDateString("en-GB");
+  //       }
+  //     } catch (e) {
+  //       // If conversion fails, treat as a regular number
+  //     }
+  //   }
 
-    // Regular number formatting
-    return Number.isInteger(value) ? value : Number(value.toFixed(2));
-  }
+  //   // Regular number formatting
+  //   return Number.isInteger(value) ? value : Number(value.toFixed(2));
+  // }
 
   // Handle objects
   else if (typeof value === "object" && value !== null) {

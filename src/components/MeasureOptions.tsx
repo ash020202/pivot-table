@@ -8,7 +8,7 @@ export const MeasureOptions = ({
   onAggChange: (field: string, type: string) => void;
 }) => {
   return (
-    <div className="absolute right-0 top-2 h-fit w-[100px] overflow-y-auto bg-white rounded z-20 shadow-lg">
+    <div className="absolute left-20 top-2 h-fit w-[100px] overflow-y-auto bg-white rounded z-2 shadow-lg">
       {["SUM", "AVG", "COUNT"].map((type) => (
         <div key={type} className="flex justify-around w-full py-1">
           <input

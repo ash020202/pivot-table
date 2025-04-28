@@ -2,33 +2,36 @@ import React, { useMemo, useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import { generatePivotData } from "../utils/pivotHelper";
 import PivotTable from "./PivotTable";
-import FieldSelectors from "./FieldSelectors";
-import { DataRow } from "../utils/types";
+
+import { DataRow, Field } from "../utils/types";
 import { useCreditManager } from "../context/creditContext";
 import FileIcons from "./ui/FileIcons";
-import png from "../assets/reset_icon.png";
+
+import DragDropPivot from "./DragDropPivot";
 const CSVUploader = () => {
   const [rawData, setRawData] = useState<DataRow[]>([]);
-  const [rowFields, setRowFields] = useState<string[]>([]);
-  const [columnFields, setColumnFields] = useState<string[]>([]);
-  const [measureFields, setMeasureFields] = useState<string[]>([]);
+  const [rowFields, setRowFields] = useState<Field[]>([]);
+  const [columnFields, setColumnFields] = useState<Field[]>([]);
+  const [measureFields, setMeasureFields] = useState<Field[]>([]);
   const [measureAggregations, setMeasureAggregations] = useState<
     Record<string, string[]>
   >({});
 
   const [numericColumns, setNumericColumns] = useState<string[]>([]);
   const [categoricalColumns, setCategoricalColumns] = useState<string[]>([]);
-  const [aggregation, setAggregation] = useState<string[]>(["SUM"]);
+  const [aggregation] = useState<string[]>(["SUM"]);
   const [fileName, setFileName] = useState("No file Uploaded");
-  const { handleActivity, resetCredits } = useCreditManager();
+  const { handleActivity } = useCreditManager();
 
   // Effect to sync measureAggregations with the main component state
   useEffect(() => {
     const newMeasureAggs: Record<string, string[]> = {};
-    measureFields.forEach((field) => {
+    measureFields.forEach((field: Field) => {
       // If we have existing aggregations for this field, use them
       // Otherwise default to the global aggregation setting
-      newMeasureAggs[field] = measureAggregations[field] || [...aggregation];
+      newMeasureAggs[field.label] = measureAggregations[field.label] || [
+        ...aggregation,
+      ];
     });
     setMeasureAggregations(newMeasureAggs);
   }, [measureFields]);
@@ -76,14 +79,14 @@ const CSVUploader = () => {
     reader.readAsArrayBuffer(file);
   };
 
-  const resetFields = () => {
-    resetCredits();
-    setRowFields([]);
-    setColumnFields([]);
-    setMeasureFields([]);
-    setMeasureAggregations({});
-    setAggregation(["SUM"]);
-  };
+  // const resetFields = () => {
+  //   resetCredits();
+  //   setRowFields([]);
+  //   setColumnFields([]);
+  //   setMeasureFields([]);
+  //   setMeasureAggregations({});
+  //   setAggregation(["SUM"]);
+  // };
 
   const groupedPivotData = useMemo(() => {
     return generatePivotData({
@@ -124,39 +127,54 @@ const CSVUploader = () => {
         Uploaded File name: <span className="text-green-500">{fileName}</span>
       </p>
 
-      <div className="flex pt-5">
-        <PivotTable data={groupedPivotData} />
+      <div className="flex pt-5 flex-col md:flex-row">
+        <div className="min-w-[800px] max-w-[700px]">
+          <PivotTable data={groupedPivotData} />
+        </div>
 
         {rawData.length > 0 && (
           <div className="flex flex-col h-[525px] items-center gap-2 p-5 ">
-            <div className="h-[510px] w-full overflow-y-auto">
+            <div className="h-[510px] w-full ">
               <div className="sticky top-0 bg-[#f0f0f0] z-2 pb-2">
                 <p className="p-1 text-lg font-semibold">Pivot Table Fields</p>
                 <p className="p-1 text-sm ">Choose Fields To Add To Report</p>
               </div>
 
-              <FieldSelectors
+              {/* <FieldSelectors
+                  numericColumns={numericColumns}
+                  rowFields={rowFields}
+                  setRowFields={setRowFields}
+                  columnFields={columnFields}
+                  setColumnFields={setColumnFields}
+                  measureFields={measureFields}
+                  setMeasureFields={setMeasureFields}
+                  rowAndColOptions={categoricalColumns}
+                  aggregation={aggregation}
+                  setAggregation={setAggregation}
+                  measureAggregations={measureAggregations}
+                  setMeasureAggregations={setMeasureAggregations}
+                /> */}
+              {/* <DragDropPivot numericColumns={numericColumns} categoricalColumns={categoricalColumns} /> */}
+              <DragDropPivot
                 numericColumns={numericColumns}
-                rowFields={rowFields}
+                categoricalColumns={categoricalColumns}
                 setRowFields={setRowFields}
-                columnFields={columnFields}
                 setColumnFields={setColumnFields}
-                measureFields={measureFields}
                 setMeasureFields={setMeasureFields}
-                rowAndColOptions={categoricalColumns}
-                aggregation={aggregation}
-                setAggregation={setAggregation}
+                rowFields={rowFields}
+                columnFields={columnFields}
+                measureField={measureFields}
                 measureAggregations={measureAggregations}
                 setMeasureAggregations={setMeasureAggregations}
               />
             </div>
-            <button
+            {/* <button
               onClick={resetFields}
               className="px-4 py-2 flex justify-center items-center gap-2 bg-green-700 text-white rounded-md hover:bg-red-600 cursor-pointer"
             >
               Reset
               <img className="h-[20px] w-[20px]" src={png} />
-            </button>
+            </button> */}
           </div>
         )}
       </div>

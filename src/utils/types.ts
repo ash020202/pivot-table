@@ -42,9 +42,9 @@ export type PivotTableProps = {
 
 export type PivotFunctionProps = {
   rawData: DataRow[];
-  rowFields: string[];
-  columnFields: string[];
-  measureFields: string[];
+  rowFields: Field[];
+  columnFields: Field[];
+  measureFields: Field[];
   aggregation: string[];
   measureAggregations?: Record<string, string[]>;
 };
@@ -90,4 +90,24 @@ export type ColumnNode = {
 
 export type ColumnTree = {
   [key: string]: ColumnLeaf | ColumnNode;
+};
+
+export type DragDropProps = {
+  numericColumns: string[];
+  categoricalColumns: string[];
+  setRowFields: React.Dispatch<React.SetStateAction<Field[]>>;
+  rowFields: Field[];
+  setColumnFields: React.Dispatch<React.SetStateAction<Field[]>>;
+  columnFields: Field[];
+  setMeasureFields: React.Dispatch<React.SetStateAction<Field[]>>;
+  measureField: Field[];
+  measureAggregations: Record<string, string[]>;
+  setMeasureAggregations: React.Dispatch<
+    React.SetStateAction<Record<string, string[]>>
+  >;
+};
+export type Field = {
+  id: string;
+  label: string;
+  isNumeric?: boolean;
 };

@@ -48,7 +48,7 @@ export default function PivotTable({ data }: PivotTableProps) {
   return (
     <div
       ref={parentRef}
-      className="max-h-[515px] max-w-[750px] overflow-auto border rounded shadow"
+      className="max-h-[515px]  max-w-[750px] overflow-auto border rounded shadow"
     >
       <div className="min-w-max">
         <div className="sticky top-0 z-10 w-full">
