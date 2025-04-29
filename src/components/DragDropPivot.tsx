@@ -23,6 +23,7 @@ export default function DragDropPivot({
   const [_, setAggregation] = useState<string[]>(["SUM"]);
   const { resetCredits } = useCreditManager();
   const [fields, setFields] = useState<Field[]>([]);
+  const { handleActivity } = useCreditManager();
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -89,7 +90,6 @@ export default function DragDropPivot({
       | "measure"
       | "fields";
     // console.log(source);
-
     let field: Field | undefined;
     if (source === "fields") {
       field = fields.find((f) => f.id === fieldId);
@@ -111,14 +111,17 @@ export default function DragDropPivot({
 
     if (target === "rows") {
       if (!field.isNumeric || draggedFromFields) {
+        handleActivity("pivot");
         setRowFields((prev) => [...prev, field]);
       } else {
         alert("Measure field cannot be placed in rows");
         return;
       }
     } else if (target === "columns") {
+      handleActivity("pivot");
       if (!field.isNumeric || draggedFromFields) {
         setColumnFields((prev) => [...prev, field]);
+        handleActivity("pivot");
       } else {
         alert("Measure field cannot be placed in columns");
         return;
@@ -126,6 +129,7 @@ export default function DragDropPivot({
     } else if (target === "measure") {
       if (field.isNumeric) {
         setMeasureFields((prev) => [...prev, field]);
+        handleActivity("pivot");
       } else {
         alert("Only numeric fields allowed in Measures");
         return;
@@ -164,6 +168,7 @@ export default function DragDropPivot({
     setOpenModal(index);
   };
   const onAggChange = (field: string, type: string) => {
+    handleActivity("aggregation");
     setMeasureAggregations((prev) => {
       const currentAggs = prev[field] || [];
       if (currentAggs.includes(type)) {
