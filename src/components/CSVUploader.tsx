@@ -173,7 +173,7 @@ const CSVUploader = () => {
       </p>
 
       <div className="flex pt-5 flex-col md:flex-row">
-        <div className="min-w-[500px] max-w-[500px]">
+        <div className="min-w-[610px] max-w-[610px]">
           {rawData.length > 0 && <PivotTable data={groupedPivotData} />}
         </div>
 

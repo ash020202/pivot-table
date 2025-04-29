@@ -37,7 +37,7 @@ const FieldArea = ({
           draggable
           onDragStart={(e) => onDragStart(e, field)}
           key={field.id}
-          className="flex h-full justify-between rounded p-2 mt-1 border "
+          className="flex h-full justify-between rounded p-2 mt-1 border text-[12px]"
         >
           <p>{field.label}</p>
           {/* <span className="absolute right-2">X</span> */}

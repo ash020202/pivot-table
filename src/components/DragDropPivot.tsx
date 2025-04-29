@@ -305,7 +305,7 @@ export default function DragDropPivot({
                 key={field.id}
                 draggable={!disabled}
                 onDragStart={(e) => handleDragStart(e, field, "fields")}
-                className={`rounded p-2 mt-[4.5px] border ${
+                className={`rounded p-2 mt-[4.5px] border text-[12px] ${
                   disabled
                     ? "cursor-not-allowed bg-[#ccc] opacity-[0.6]"
                     : "cursor-grab bg-white "
