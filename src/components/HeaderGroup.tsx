@@ -23,7 +23,7 @@ const HeaderGroup = ({ headerGroup }: HeaderGroupProps) => {
         return (
           <div
             key={header.id}
-            className="text-[14px] border relative px-4 py-2 flex justify-center items-center gap-2"
+            className="text-[12px] border relative px-4 py-2 flex justify-center items-center gap-2"
             onClick={header.column.getToggleSortingHandler()}
             onContextMenu={handleContextMenu}
             onMouseDown={handleChangeType}

@@ -24,11 +24,13 @@ const FieldArea = ({
   allowDrop,
 }: FieldAreaProps) => (
   <div
-    className="min-h-[100px] max-h-[100px] w-[200px] border-[2px] border-dashed border-green-400 rounded overflow-y-auto bg-white"
+    className="min-h-[100px] max-h-[100px] w-[150px] border-[2px] border-gray-400 rounded overflow-y-auto bg-white"
     onDrop={onDrop}
     onDragOver={allowDrop}
   >
-    <h4 className="sticky top-0 z-5 bg-[#f0f0f0] py-1 px-2">{title}</h4>
+    <h4 className="sticky top-0 z-5 bg-[#f0f0f0] py-1 px-2 font-semibold">
+      {title}
+    </h4>
     <div className="p-2 bg-white    ">
       {fields.map((field) => (
         <div

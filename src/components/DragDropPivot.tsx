@@ -215,7 +215,7 @@ export default function DragDropPivot({
   return (
     <div className=" flex flex-col items-start select-none">
       <div className="flex max-h-[300px] text-[14px] ">
-        <div className="flex flex-col items-center gap-4 p-4">
+        <div className="flex flex-col items-center gap-4 p-2">
           <div className="flex gap-4">
             {/* Row Area */}
             <FieldArea
@@ -243,12 +243,12 @@ export default function DragDropPivot({
           <div
             onDrop={(e) => handleDrop(e, "measure")}
             onDragOver={allowDrop}
-            className="min-h-[150px] w-full border-[2px] border-dashed border-green-400 rounded max-h-[50px] overflow-y-auto bg-white"
+            className="min-h-[100px] w-full border-[2px] border-gray-400 rounded max-h-[50px] overflow-y-auto bg-white"
           >
-            <h4 className="sticky top-0 z-5 bg-[#f0f0f0] py-1 px-2">
+            <h4 className="sticky top-0 z-5 bg-[#f0f0f0] py-1 px-2 font-semibold">
               Values Area
             </h4>
-            <div className="py-1 px-4 ">
+            <div className="py-1 px-2 ">
               {measureField.map((m, index) => (
                 <div
                   className=" flex justify-between w-[200px] rounded p-2 mt-1 border bg-white"
@@ -294,8 +294,10 @@ export default function DragDropPivot({
           </div>
         </div>
         {/* Available Fields */}
-        <div className="h-[280px] w-[200px] overflow-y-auto">
-          <h3 className="sticky top-0 p-2 bg-[#f0f0f0] z-5">Fields</h3>
+        <div className="h-[215px] mt-2 w-[200px] overflow-y-auto px-2 border-[2px] rounded border-gray-400">
+          <h3 className="sticky top-0 p-2 bg-[#f0f0f0] z-5 font-semibold">
+            Fields
+          </h3>
           {fields.map((field) => {
             const disabled = isFieldUsed(field);
             return (
@@ -303,7 +305,7 @@ export default function DragDropPivot({
                 key={field.id}
                 draggable={!disabled}
                 onDragStart={(e) => handleDragStart(e, field, "fields")}
-                className={`rounded p-2 mt-1 border ${
+                className={`rounded p-2 mt-[4.5px] border ${
                   disabled
                     ? "cursor-not-allowed bg-[#ccc] opacity-[0.6]"
                     : "cursor-grab bg-white "
@@ -323,7 +325,7 @@ export default function DragDropPivot({
       </div>
       <button
         onClick={resetFields}
-        className="ml-4 px-4 py-2 flex justify-center items-center gap-2 bg-green-700 text-white rounded-md hover:bg-red-600 cursor-pointer"
+        className="ml-2 px-3 py-2 text-[12px] flex justify-center items-center gap-2 bg-green-700 text-white rounded-md hover:bg-red-600 cursor-pointer"
       >
         Reset
         <img className="h-[20px] w-[20px]" src={png} />

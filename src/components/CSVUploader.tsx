@@ -154,12 +154,12 @@ const CSVUploader = () => {
   ]);
 
   return (
-    <div className="p-4 flex flex-col items-center justify-center min-h-screen">
-      <h2 className="text-xl font-bold mb-2">
+    <div className="p-2 flex flex-col items-center justify-center min-h-screen ">
+      <h2 className="text-sm font-bold mb-2">
         CSV / Excel Viewer + Pivot Table
       </h2>
 
-      <label className="flex flex-col items-center justify-center px-6 py-4 bg-white text-green-500 border-2 border-dashed border-green-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-all duration-300">
+      <label className="flex flex-col items-center justify-center px-4 py-2 bg-white text-green-500 border-2 border-dashed border-green-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-all duration-300">
         <FileIcons />
         <input
           type="file"
@@ -168,21 +168,23 @@ const CSVUploader = () => {
           className="hidden"
         />
       </label>
-      <p className="pt-4 text-[18px] font-semibold">
+      <p className="pt-4 text-[14px] font-semibold">
         Uploaded File name: <span className="text-green-500">{fileName}</span>
       </p>
 
       <div className="flex pt-5 flex-col md:flex-row">
-        <div className="min-w-[800px] max-w-[700px]">
+        <div className="min-w-[500px] max-w-[500px]">
           {rawData.length > 0 && <PivotTable data={groupedPivotData} />}
         </div>
 
         {rawData.length > 0 && (
-          <div className="flex flex-col h-[525px] items-center gap-2 p-5 ">
-            <div className="h-[510px] w-full ">
+          <div className="flex flex-col  items-center gap-2 p-5 ">
+            <div className=" ">
               <div className="sticky top-0 bg-[#f0f0f0] z-2 pb-2">
-                <p className="p-1 text-lg font-semibold">Pivot Table Fields</p>
-                <p className="p-1 text-sm ">Choose Fields To Add To Report</p>
+                <p className="p-1 text-sm font-semibold">Pivot Table Fields</p>
+                <p className="p-1 text-[12px] ">
+                  Choose Fields To Add To Report
+                </p>
               </div>
 
               <DragDropPivot
