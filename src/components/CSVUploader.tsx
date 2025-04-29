@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import * as XLSX from "xlsx";
-import { generatePivotData } from "../utils/pivotHelper";
+import { formatCellValue, generatePivotData } from "../utils/pivotHelper";
 import PivotTable from "./PivotTable";
 
 import { DataRow, Field } from "../utils/types";
@@ -36,13 +36,54 @@ const CSVUploader = () => {
     setMeasureAggregations(newMeasureAggs);
   }, [measureFields]);
 
+  // const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   handleActivity("upload");
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
+  //   if (file) {
+  //     setFileName(file.name);
+  //   }
+
+  //   const reader = new FileReader();
+  //   reader.onload = (event) => {
+  //     const fileData = new Uint8Array(event.target?.result as ArrayBuffer);
+  //     const workbook = XLSX.read(fileData, { type: "array", cellDates: true });
+  //     const sheetName = workbook.SheetNames[0];
+  //     const worksheet = workbook.Sheets[sheetName];
+
+  //     const jsonData: DataRow[] = XLSX.utils.sheet_to_json(worksheet, {
+  //       defval: "",
+  //     });
+
+  //     if (jsonData.length > 0) {
+  //       const allCols = Object.keys(jsonData[0]);
+  //       formatCellValue(_,allCols)
+  //       const numericCols = allCols.filter((col) =>
+  //         jsonData.every((row) =>
+  //           row[col] === "" || row[col] === null || row[col] === undefined
+  //             ? true
+  //             : !isNaN(parseFloat(String(row[col])))
+  //         )
+  //       );
+
+  //       const categoricalCol = allCols.filter(
+  //         (col) => !numericCols.includes(col)
+  //       );
+
+  //       setNumericColumns(numericCols);
+  //       setCategoricalColumns(categoricalCol);
+  //       setRawData(jsonData);
+  //     }
+  //   };
+
+  //   reader.readAsArrayBuffer(file);
+  // };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleActivity("upload");
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file) {
-      setFileName(file.name);
-    }
+    setFileName(file.name);
 
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -51,18 +92,33 @@ const CSVUploader = () => {
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
 
-      const jsonData: DataRow[] = XLSX.utils.sheet_to_json(worksheet, {
+      let jsonData: DataRow[] = XLSX.utils.sheet_to_json(worksheet, {
         defval: "",
       });
 
       if (jsonData.length > 0) {
         const allCols = Object.keys(jsonData[0]);
 
+        // Check columns that have "date" in the name (case insensitive)
+        const dateColumns = allCols.filter((col) =>
+          col.toLowerCase().includes("date")
+        );
+        console.log(dateColumns);
+
+        // Format date columns
+        jsonData = jsonData.map((row) => {
+          const updatedRow = { ...row };
+          dateColumns.forEach((col) => {
+            updatedRow[col] = formatCellValue(updatedRow[col], col);
+          });
+          return updatedRow;
+        });
+
         const numericCols = allCols.filter((col) =>
           jsonData.every((row) =>
             row[col] === "" || row[col] === null || row[col] === undefined
               ? true
-              : !isNaN(parseFloat(String(row[col])))
+              : !isNaN(Number(String(row[col])))
           )
         );
 
@@ -78,15 +134,6 @@ const CSVUploader = () => {
 
     reader.readAsArrayBuffer(file);
   };
-
-  // const resetFields = () => {
-  //   resetCredits();
-  //   setRowFields([]);
-  //   setColumnFields([]);
-  //   setMeasureFields([]);
-  //   setMeasureAggregations({});
-  //   setAggregation(["SUM"]);
-  // };
 
   const groupedPivotData = useMemo(() => {
     return generatePivotData({
@@ -113,9 +160,7 @@ const CSVUploader = () => {
       </h2>
 
       <label className="flex flex-col items-center justify-center px-6 py-4 bg-white text-green-500 border-2 border-dashed border-green-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-all duration-300">
-        {/* <span className="text-3xl mb-2">📁</span> */}
         <FileIcons />
-        {/* <span className="text-sm font-medium">Upload CSV/Excel</span> */}
         <input
           type="file"
           accept=".csv, .xls, .xlsx"
@@ -129,7 +174,7 @@ const CSVUploader = () => {
 
       <div className="flex pt-5 flex-col md:flex-row">
         <div className="min-w-[800px] max-w-[700px]">
-          <PivotTable data={groupedPivotData} />
+          {rawData.length > 0 && <PivotTable data={groupedPivotData} />}
         </div>
 
         {rawData.length > 0 && (
@@ -140,21 +185,6 @@ const CSVUploader = () => {
                 <p className="p-1 text-sm ">Choose Fields To Add To Report</p>
               </div>
 
-              {/* <FieldSelectors
-                  numericColumns={numericColumns}
-                  rowFields={rowFields}
-                  setRowFields={setRowFields}
-                  columnFields={columnFields}
-                  setColumnFields={setColumnFields}
-                  measureFields={measureFields}
-                  setMeasureFields={setMeasureFields}
-                  rowAndColOptions={categoricalColumns}
-                  aggregation={aggregation}
-                  setAggregation={setAggregation}
-                  measureAggregations={measureAggregations}
-                  setMeasureAggregations={setMeasureAggregations}
-                /> */}
-              {/* <DragDropPivot numericColumns={numericColumns} categoricalColumns={categoricalColumns} /> */}
               <DragDropPivot
                 numericColumns={numericColumns}
                 categoricalColumns={categoricalColumns}
@@ -168,13 +198,6 @@ const CSVUploader = () => {
                 setMeasureAggregations={setMeasureAggregations}
               />
             </div>
-            {/* <button
-              onClick={resetFields}
-              className="px-4 py-2 flex justify-center items-center gap-2 bg-green-700 text-white rounded-md hover:bg-red-600 cursor-pointer"
-            >
-              Reset
-              <img className="h-[20px] w-[20px]" src={png} />
-            </button> */}
           </div>
         )}
       </div>

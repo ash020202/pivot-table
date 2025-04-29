@@ -28,10 +28,10 @@ export function generatePivotData({
       .join(" | ");
     const colKey = columnFields.length
       ? columnFields
-          .map((field) => formatCellValue(row[field.label]))
+          .map((field) => formatCellValue(row[field.label], field?.label))
           .join(" | ")
       : "";
-    console.log(colKey);
+    // console.log(colKey);
 
     const rowObj = resultMap.get(rowKey) || {};
 
@@ -53,7 +53,7 @@ export function generatePivotData({
 
     // If measures exist, aggregate based on per-measure aggregation types
     measureFields.forEach((measure) => {
-      console.log(measure);
+      // console.log(measure);
 
       // Use measure-specific aggregations if available, otherwise use global
       const aggTypesToUse = measureAggregations[measure.label] || aggregation;
@@ -62,7 +62,7 @@ export function generatePivotData({
         const finalColKey = colKey
           ? `${colKey} | ${aggType} of ${measure.label}`
           : `${aggType} of ${measure.label}`;
-        console.log("Creating column:", finalColKey);
+        // console.log("Creating column:", finalColKey);
         const value = Number(row[measure.label]) || 0;
 
         if (!grouped[rowKey]) grouped[rowKey] = {};
@@ -105,7 +105,7 @@ export function generatePivotData({
     });
 
     result.push(rowObj);
-    console.log(result);
+    // console.log(result);
   }
 
   // Add Grand Total row if any rowFields or columnFields are selected
@@ -153,62 +153,125 @@ export function generatePivotData({
   return result;
 }
 
-export function formatCellValue(value: any): string | number {
+// export function formatCellValue(
+//   value: any,
+//   columnLabel?: string
+// ): string | number {
+//   // First check if it's already a Date object
+//   if (value instanceof Date || columnLabel?.includes("date")) {
+//     return value.toLocaleDateString("en-GB");
+//   }
+
+//   // For strings, attempt to detect date formats
+//   else if (typeof value === "string") {
+//     // Check for common date patterns
+//     if (/^\d{1,4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,4}$/.test(value)) {
+//       const dateObj = new Date(value);
+//       if (!isNaN(dateObj.getTime())) {
+//         return dateObj.toLocaleDateString("en-GB");
+//       }
+//     }
+//     console.log(columnLabel);
+//     return value;
+//   }
+
+//   // For Excel date serials (without breaking other numbers)
+//   // else if (typeof value === "number") {
+//   //   // Excel date serials typically fall in specific ranges
+//   //   // 1 = January 1, 1900, modern dates are typically 40000-50000
+//   //   if (value > 35000 && value < 80000) {
+//   //     try {
+//   //       // Excel date calculation (adjust for Excel's 1900 leap year bug)
+//   //       const excelEpoch = new Date(1899, 11, 30);
+//   //       const possibleDate = new Date(
+//   //         excelEpoch.getTime() + value * 24 * 60 * 60 * 1000
+//   //       );
+
+//   //       // Final validation - make sure it's not too far in the future or past
+//   //       const currentYear = new Date().getFullYear();
+//   //       if (
+//   //         possibleDate.getFullYear() > 1920 &&
+//   //         possibleDate.getFullYear() < currentYear + 10
+//   //       ) {
+//   //         return possibleDate.toLocaleDateString("en-GB");
+//   //       }
+//   //     } catch (e) {
+//   //       // If conversion fails, treat as a regular number
+//   //     }
+//   //   }
+
+//   //   // Regular number formatting
+//   //   return Number.isInteger(value) ? value : Number(value.toFixed(2));
+//   // }
+
+//   // Handle objects
+//   else if (typeof value === "object" && value !== null) {
+//     return Object.entries(value)
+//       .map(([key, val]) => `${key}: ${val}`)
+//       .join(", ");
+//   }
+
+//   return value ?? ""; // Handle null/undefined as empty string
+// }
+
+export function formatCellValue(
+  value: any,
+  columnLabel?: string
+): string | number {
   // First check if it's already a Date object
-  if (value instanceof Date) {
+  if (value instanceof Date || value instanceof Object) {
     return value.toLocaleDateString("en-GB");
   }
 
-  // For strings, attempt to detect date formats
+  // If it's not a Date, check if the column label contains "date"
+  else if (columnLabel?.toLowerCase().includes("date")) {
+    // Check for Excel serial date numbers (between 35000 and 80000)
+    if (typeof value === "number" && value > 35000 && value < 80000) {
+      try {
+        // Excel date calculation (adjust for Excel's 1900 leap year bug)
+        const excelEpoch = new Date(1899, 11, 30);
+        const possibleDate = new Date(
+          excelEpoch.getTime() + value * 24 * 60 * 60 * 1000
+        );
+
+        // Final validation - ensure it's a reasonable date range
+        const currentYear = new Date().getFullYear();
+        if (
+          possibleDate.getFullYear() > 1920 &&
+          possibleDate.getFullYear() < currentYear + 10
+        ) {
+          return possibleDate.toLocaleDateString("en-GB");
+        }
+      } catch (e) {
+        console.error("Error converting Excel date serial:", e);
+      }
+    }
+  }
+
+  // For strings, attempt to detect date patterns (e.g., dd/mm/yyyy, mm/dd/yyyy)
   else if (typeof value === "string") {
-    // Check for common date patterns
-    if (/^\d{1,4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,4}$/.test(value)) {
+    const datePattern = /^\d{1,4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,4}$/;
+    if (datePattern.test(value)) {
       const dateObj = new Date(value);
       if (!isNaN(dateObj.getTime())) {
         return dateObj.toLocaleDateString("en-GB");
       }
     }
-    return value;
+    return value; // Return original value if it's not a date
   }
 
-  // For Excel date serials (without breaking other numbers)
-  // else if (typeof value === "number") {
-  //   // Excel date serials typically fall in specific ranges
-  //   // 1 = January 1, 1900, modern dates are typically 40000-50000
-  //   if (value > 35000 && value < 80000) {
-  //     try {
-  //       // Excel date calculation (adjust for Excel's 1900 leap year bug)
-  //       const excelEpoch = new Date(1899, 11, 30);
-  //       const possibleDate = new Date(
-  //         excelEpoch.getTime() + value * 24 * 60 * 60 * 1000
-  //       );
-
-  //       // Final validation - make sure it's not too far in the future or past
-  //       const currentYear = new Date().getFullYear();
-  //       if (
-  //         possibleDate.getFullYear() > 1920 &&
-  //         possibleDate.getFullYear() < currentYear + 10
-  //       ) {
-  //         return possibleDate.toLocaleDateString("en-GB");
-  //       }
-  //     } catch (e) {
-  //       // If conversion fails, treat as a regular number
-  //     }
-  //   }
-
-  //   // Regular number formatting
-  //   return Number.isInteger(value) ? value : Number(value.toFixed(2));
-  // }
-
-  // Handle objects
+  // Handle objects (e.g., if it's an object with key-value pairs)
   else if (typeof value === "object" && value !== null) {
     return Object.entries(value)
       .map(([key, val]) => `${key}: ${val}`)
       .join(", ");
+  } else if (typeof value === "number") {
+    return Number.isInteger(value) ? value : Number(value.toFixed(2));
   }
-
-  return value ?? ""; // Handle null/undefined as empty string
+  // Return the original value (handles null/undefined or regular values)
+  return value ?? "";
 }
+
 export function buildGroupedColumns(data: DataRow[]): ColumnDef<DataRow>[] {
   if (!data.length) return [];
 
@@ -310,7 +373,7 @@ export function buildGroupedColumns(data: DataRow[]): ColumnDef<DataRow>[] {
 //       }
 
 //       const leaf = levels[levels.length - 1];
-//       // console.log(leaf);
+//        console.log(leaf);
 
 //       current[leaf] = {
 //         accessorKey: fullKey,

@@ -31,10 +31,25 @@ export default function DragDropPivot({
     };
 
     document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("click", handleClick);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("click", handleClick);
     };
   }, []);
+
+  const handleClick = (e: MouseEvent) => {
+    // Check if click happened inside a MeasureOptions dropdown
+    const target = e.target as HTMLElement;
+    if (
+      target.closest(".measure-options") ||
+      target.closest(".open-agg-button")
+    ) {
+      // If clicked inside the aggregation options or button, do nothing
+      return;
+    }
+    setOpenModal(null);
+  };
 
   // Populate fields from props when component mounts
   useEffect(() => {
@@ -73,6 +88,7 @@ export default function DragDropPivot({
       | "columns"
       | "measure"
       | "fields";
+    // console.log(source);
 
     let field: Field | undefined;
     if (source === "fields") {
@@ -128,8 +144,8 @@ export default function DragDropPivot({
   const isFieldUsed = (field: Field) => {
     return (
       rowFields.some((r) => r.id === field.id) ||
-      columnFields.some((c) => c.id === field.id)
-      // measureField.some((m)=>m.id === field.id)
+      columnFields.some((c) => c.id === field.id) ||
+      measureField.some((m) => m.id === field.id)
     );
   };
 
@@ -192,7 +208,7 @@ export default function DragDropPivot({
   };
 
   return (
-    <div className=" flex flex-col items-start">
+    <div className=" flex flex-col items-start select-none">
       <div className="flex max-h-[300px] text-[14px] ">
         <div className="flex flex-col items-center gap-4 p-4">
           <div className="flex gap-4">
@@ -234,14 +250,15 @@ export default function DragDropPivot({
                   key={m.id}
                   style={{ padding: "5px" }}
                 >
-                  <div className="flex gap-2 relative">
+                  <div className="flex gap-2 relative measure-options">
                     <p>{m.label}</p>
 
                     <button
-                      className=""
+                      className="open-agg-button"
                       onClick={() => openMeasureOption(index)}
                     >
                       <img
+                        className="cursor-pointer"
                         src={measureOptionIcon}
                         height={15}
                         width={15}
@@ -272,7 +289,7 @@ export default function DragDropPivot({
           </div>
         </div>
         {/* Available Fields */}
-        <div className="h-[235px] overflow-y-auto">
+        <div className="h-[280px] w-[200px] overflow-y-auto">
           <h3 className="sticky top-0 p-2 bg-[#f0f0f0] z-5">Fields</h3>
           {fields.map((field) => {
             const disabled = isFieldUsed(field);
