@@ -61,3 +61,16 @@
 .animate-fade-up-once {
   animation: fade-up-once 1s ease-out;
 }
+
+@keyframes fade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-fade {
+  animation: fade 1s ease-in;
+}

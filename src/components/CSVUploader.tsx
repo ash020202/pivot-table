@@ -22,6 +22,7 @@ const CSVUploader = () => {
   const [aggregation] = useState<string[]>(["SUM"]);
   const [fileName, setFileName] = useState("No file Uploaded");
   const { handleActivity } = useCreditManager();
+  const [showRightPanel, setShowRightPanel] = useState(false);
 
   // Effect to sync measureAggregations with the main component state
   useEffect(() => {
@@ -173,12 +174,38 @@ const CSVUploader = () => {
       </p>
 
       <div className="flex pt-5 flex-col md:flex-row">
-        <div className="min-w-[610px] max-w-[610px]">
-          {rawData.length > 0 && <PivotTable data={groupedPivotData} />}
+        <div
+          className={`${
+            showRightPanel ? "max-w-[90dvw]" : "min-w-[610px] max-w-[710px]"
+          } `}
+        >
+          {rawData.length > 0 && (
+            <button
+              onClick={() => setShowRightPanel(!showRightPanel)}
+              className="bg-red-400 cursor-pointer shadow-2xl capitalize py-1 px-3 mb-2 rounded-lg"
+            >
+              {showRightPanel ? "open side panel" : "close side panel"}
+            </button>
+          )}
+          {rawData.length > 0 && (
+            <PivotTable
+              showRightPanel={showRightPanel}
+              data={groupedPivotData}
+            />
+          )}
         </div>
 
         {rawData.length > 0 && (
-          <div className="flex flex-col  items-center gap-2 p-5 ">
+          <div
+            // className={`${
+            //   showRightPanel ? "hidden animate-fade transition" : ""
+            // } flex flex-col  items-center gap-2 p-5 `}
+            className={`p-5 transition-all duration-500 ease-in-out overflow-hidden bg-[#f0f0f0] ${
+              showRightPanel
+                ? "max-w-0 opacity-0 translate-x-[100%]"
+                : "max-w-fit opacity-100"
+            }`}
+          >
             <div className=" ">
               <div className="sticky top-0 bg-[#f0f0f0] z-2 pb-2">
                 <p className="p-1 text-sm font-semibold">Pivot Table Fields</p>

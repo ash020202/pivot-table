@@ -251,7 +251,7 @@ export default function DragDropPivot({
             <div className="py-1 px-2 ">
               {measureField.map((m, index) => (
                 <div
-                  className=" flex justify-between w-[200px] rounded p-2 mt-1 border bg-white"
+                  className=" flex justify-between  rounded p-2 mt-1 border bg-white"
                   key={m.id}
                   style={{ padding: "5px" }}
                 >
@@ -294,7 +294,7 @@ export default function DragDropPivot({
           </div>
         </div>
         {/* Available Fields */}
-        <div className="h-[215px] mt-2 w-[200px] overflow-y-auto px-2 border-[2px] rounded border-gray-400">
+        <div className="h-[215px] mt-2 w-[150px] overflow-y-auto px-2 border-[2px] rounded border-gray-400">
           <h3 className="sticky top-0 p-2 bg-[#f0f0f0] z-5 font-semibold">
             Fields
           </h3>

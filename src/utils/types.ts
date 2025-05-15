@@ -38,6 +38,7 @@ export type AggregationType = "SUM" | "AVG" | "COUNT";
 
 export type PivotTableProps = {
   data: DataRow[];
+  showRightPanel: boolean;
 };
 
 export type PivotFunctionProps = {

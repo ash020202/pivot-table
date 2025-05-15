@@ -13,7 +13,7 @@ import { DataRow, PivotTableProps } from "../utils/types";
 import RowGroup from "./RowGroup";
 import HeaderGroup from "./HeaderGroup";
 
-export default function PivotTable({ data }: PivotTableProps) {
+export default function PivotTable({ data, showRightPanel }: PivotTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const columns: ColumnDef<DataRow>[] = buildGroupedColumns(data);
@@ -48,7 +48,9 @@ export default function PivotTable({ data }: PivotTableProps) {
   return (
     <div
       ref={parentRef}
-      className="max-h-[400px]  max-w-[750px] overflow-auto border rounded shadow"
+      className={`${
+        showRightPanel ? "max-w-full" : "  max-w-[750px]"
+      } max-h-[350px] overflow-auto border rounded shadow`}
     >
       <div className="min-w-max">
         <div className="sticky top-0 z-10 w-full">
